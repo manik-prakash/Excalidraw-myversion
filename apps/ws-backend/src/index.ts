@@ -7,7 +7,7 @@ if (!secret) {
   throw new Error("JWT_SECRET must be defined in environment variables");
 }
 const wss = new WebSocketServer({ port: 8080 });
-
+console.log(`running on port 8080`);
 interface User{
   ws : WebSocket,
   rooms : string[],
