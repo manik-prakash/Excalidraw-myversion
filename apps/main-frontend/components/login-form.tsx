@@ -1,34 +1,70 @@
+"use client"
 import { GalleryVerticalEnd } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import Link from "next/link"
+import React, { useEffect , useState } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const router = useRouter();
+  const [user, setUser] = React.useState({
+    email: "",
+    password: "",
+
+  })
+  const [buttonDisabled, setButtonDisabled] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const onLogin = async (event : React.SyntheticEvent) => {
+    try {
+      event.preventDefault();
+      setLoading(true);
+      const response = await axios.post("/auth/login", user);
+      console.log("Login success", response.data);
+      router.push("/arena");
+    } catch (error: any) {
+      console.log("Login failed", error.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (user.email.length > 0 && user.password.length > 0) {
+      setButtonDisabled(false);
+    } else {
+      setButtonDisabled(true);
+    }
+  }, [user]);
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <form>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col items-center gap-2">
-            <a
-              href="#"
+            <Link
+              href="/"
               className="flex flex-col items-center gap-2 font-medium"
             >
               <div className="flex size-8 items-center justify-center rounded-md">
                 <GalleryVerticalEnd className="size-6" />
               </div>
               <span className="sr-only">DrawTogether</span>
-            </a>
-            <h1 className="text-xl font-bold">Welcome to DrawTogether</h1>
+              <h1 className="text-xl font-bold">Welcome to DrawTogether</h1>
+            </Link>
+            <h1 className="text-xl font-bold">{loading ? "Processing" : "Login"}</h1>
             <div className="text-center text-sm">
               Don&apos;t have an account?{" "}
-              <a href="/auth/signup" className="underline underline-offset-4">
+              <Link href="/auth/signup" className="underline underline-offset-4">
                 Sign up
-              </a>
+              </Link>
             </div>
           </div>
           <div className="flex flex-col gap-6">
@@ -38,6 +74,8 @@ export function LoginForm({
                 id="email"
                 type="email"
                 placeholder="m@example.com"
+                value={user.email}
+                onChange={(e) => setUser({...user, email: e.target.value})}
                 required
               />
             </div>
@@ -47,10 +85,12 @@ export function LoginForm({
                 id="password"
                 type="password"
                 placeholder="**********"
+                value={user.password}
+                onChange={(e) => setUser({...user, password: e.target.value})}
                 required
               />
             </div>
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full" onClick={onLogin} disabled={buttonDisabled}>
               Login
             </Button>
           </div>

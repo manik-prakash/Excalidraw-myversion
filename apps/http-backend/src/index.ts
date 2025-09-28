@@ -4,10 +4,17 @@ import authRoute from "./Routes/authRoute"
 import { errorHandler } from './Middlewares/errorHandler';
 import { verify } from './Middlewares/auth';
 import prisma from '@repo/db/client';
+import cors from 'cors';
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(cors({
+    origin : ["http://localhost:3002"],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+}))
 
 app.get("/ping", (req, res) => {
     res.send("pong , working.");
